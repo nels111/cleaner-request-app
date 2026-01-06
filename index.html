@@ -410,16 +410,20 @@
         function onScanSuccess(text) {
             let id = text;
             // Handle URL format from QR codes
-            if (text.includes('id=')) {
-                try { id = new URL(text).searchParams.get('id'); } catch(e) {}
+            if (text.includes('?')) {
+                try { 
+                    const url = new URL(text);
+                    // Check for 'product' or 'id' parameter
+                    id = url.searchParams.get('product') || url.searchParams.get('id') || text;
+                } catch(e) {}
             }
             
-            // Check if product exists
+            // Check if product exists in loaded products
             if (CONFIG.products[id]) {
                 addToBasket(id, CONFIG.products[id].name);
             } else {
-                // Unknown product - still add with ID as name
-                addToBasket(id, `Product ${id}`);
+                // Unknown product - show clean ID
+                addToBasket(id, id);
             }
             
             if (navigator.vibrate) navigator.vibrate(100);
